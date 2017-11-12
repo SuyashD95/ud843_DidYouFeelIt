@@ -47,14 +47,19 @@ public class MainActivity extends AppCompatActivity {
          * This method can call {@link #publishProgress} to publish updates
          * on the UI thread.
          *
-         * @param strings The parameters of the task.
+         * @param urls The parameters of the task.
          * @return A result, defined by the subclass of this task.
          * @see #onPostExecute
          */
         @Override
-        protected Event doInBackground(String... strings) {
+        protected Event doInBackground(String... urls) {
+            // Don't perform the request if there are no URLs, or the first URL is null.
+            if (urls.length < 1 || urls[0] == null) {
+                return null;
+            }
+
             // Perform the HTTP request for earthquake data and process the response.
-            return Utils.fetchEarthquakeData(strings[0]);
+            return Utils.fetchEarthquakeData(urls[0]);
         }
 
         /**
@@ -63,13 +68,18 @@ public class MainActivity extends AppCompatActivity {
          * <p>
          * <p>This method won't be invoked if the task was cancelled.</p>
          *
-         * @param earthquake The result of the operation computed by {@link #doInBackground}.
+         * @param result The result of the operation computed by {@link #doInBackground}.
          * @see #doInBackground
          */
         @Override
-        protected void onPostExecute(Event earthquake) {
+        protected void onPostExecute(Event result) {
+            // If there is no result, do nothing.
+            if (result == null) {
+                return;
+            }
+
             // Update the information displayed to the user.
-            updateUi(earthquake);
+            updateUi(result);
         }
     }
 
