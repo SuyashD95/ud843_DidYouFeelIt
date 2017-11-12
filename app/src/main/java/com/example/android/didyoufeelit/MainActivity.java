@@ -15,6 +15,7 @@
  */
 package com.example.android.didyoufeelit;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -34,11 +35,42 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Perform the HTTP request for earthquake data and process the response.
-        Event earthquake = Utils.fetchEarthquakeData(USGS_REQUEST_URL);
+        new EarthquakeAsyncTask().execute(USGS_REQUEST_URL);
+    }
 
-        // Update the information displayed to the user.
-        updateUi(earthquake);
+    private class EarthquakeAsyncTask extends AsyncTask<String, Void, Event> {
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param strings The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPostExecute
+         */
+        @Override
+        protected Event doInBackground(String... strings) {
+            // Perform the HTTP request for earthquake data and process the response.
+            return Utils.fetchEarthquakeData(strings[0]);
+        }
+
+        /**
+         * <p>Runs on the UI thread after {@link #doInBackground}. The
+         * specified result is the value returned by {@link #doInBackground}.</p>
+         * <p>
+         * <p>This method won't be invoked if the task was cancelled.</p>
+         *
+         * @param earthquake The result of the operation computed by {@link #doInBackground}.
+         * @see #doInBackground
+         */
+        @Override
+        protected void onPostExecute(Event earthquake) {
+            // Update the information displayed to the user.
+            updateUi(earthquake);
+        }
     }
 
     /**
